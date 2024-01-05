@@ -1,9 +1,9 @@
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Awaitable, Callable, Generic, TypeVar
-from dataclasses import dataclass
+
 import jsonlines
 from pydantic import BaseModel
-
 
 T = TypeVar("T", bound=BaseModel)
 NewT = TypeVar("NewT", bound=BaseModel)
