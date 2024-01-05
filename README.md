@@ -29,7 +29,7 @@ print(data.get())
 # ]
 ```
 
-Features:
+## Features
 
 - Loading previously mapped data (`mppr.load`).
 - Cached initializing of data (`mppr.init`).
