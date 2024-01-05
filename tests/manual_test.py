@@ -21,14 +21,11 @@ def square(key: str, row: Row) -> Row:
     return Row(value=row.value**2)
 
 
-print("eh?")
 data = mppr.init(
     stage_name="init",
     base_dir=Path("output"),
     init_fn=lambda: {f"row{i}": Row(value=i) for i in range(N_ROWS)},
     clazz=Row,
 )
-print("eh?")
 data = data.map("square", square, clazz=Row)
-print("eh?")
 pprint(data.get())
