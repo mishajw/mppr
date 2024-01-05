@@ -10,8 +10,23 @@ NewT = TypeVar("NewT", bound=BaseModel)
 
 
 def init(
-    stage_name: str, base_dir: Path, init_fn: Callable[[], dict[str, T]], clazz: type[T]
+    stage_name: str,
+    base_dir: Path,
+    init_fn: Callable[[], dict[str, T]],
+    clazz: type[T],
 ) -> "Mappable[T]":
+    """
+    Creates a mappable object from an init function.
+
+    The function is only called if the stage does not exist.
+
+    Args:
+        stage_name: The name of the stage.
+        base_dir: Where the stages are saved out to.
+        init_fn: The function to call to initialize the stage.
+        clazz: The class of the values in the stage. Used for deserialization.
+    """
+
     stage_path = base_dir / f"{stage_name}.jsonl"
     values: dict[str, T] = {}
 
@@ -26,6 +41,15 @@ def init(
 
 
 def load(stage_name: str, base_dir: Path, clazz: type[T]) -> "Mappable[T]":
+    """
+    Loads a previously created stage.
+
+    Args:
+        stage_name: The name of the stage.
+        base_dir: Where the stages are saved out to.
+        clazz: The class of the values in the stage. Used for deserialization.
+    """
+
     stage_path = base_dir / f"{stage_name}.jsonl"
     values: dict[str, T] = {}
     assert stage_path.is_file(), f"Stage {stage_name} not found"
@@ -47,6 +71,18 @@ class Mappable(Generic[T]):
         fn: Callable[[str, T], NewT],
         clazz: type[NewT],
     ) -> "Mappable[NewT]":
+        """
+        Maps a function over the values in the stage.
+
+        Resumable: If the stage already exists, the function is only called on
+        the values that have not been processed yet.
+
+        Args:
+            stage_name: The name of the stage.
+            fn: The function to call on each value.
+            clazz: The class of the values in the stage. Used for deserialization.
+        """
+
         mapped_values: dict[str, NewT] = {}
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -69,6 +105,10 @@ class Mappable(Generic[T]):
         fn: Callable[[str, T], Awaitable[NewT]],
         clazz: type[NewT],
     ) -> "Mappable[NewT]":
+        """
+        Asyncronous version of map.
+        """
+
         mapped_values: dict[str, NewT] = {}
         self.base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -86,4 +126,7 @@ class Mappable(Generic[T]):
         return Mappable(mapped_values, self.base_dir)
 
     def get(self) -> list[T]:
+        """
+        Gets the values in the map.
+        """
         return list(self.values.values())
