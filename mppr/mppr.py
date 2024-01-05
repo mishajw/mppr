@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Generic, TypeVar
+from typing import Awaitable, Callable, Generic, TypeVar
 from dataclasses import dataclass
 import jsonlines
 from pydantic import BaseModel
@@ -58,6 +58,28 @@ class Mappable(Generic[T]):
             for key, value in self.values.items():
                 if key not in mapped_values:
                     mapped_value = fn(key, value)
+                    mapped_values[key] = mapped_value
+                    f.write({"key": key, "value": mapped_value.model_dump()})
+
+        return Mappable(mapped_values, self.base_dir)
+
+    async def amap(
+        self,
+        stage_name: str,
+        fn: Callable[[str, T], Awaitable[NewT]],
+        clazz: type[NewT],
+    ) -> "Mappable[NewT]":
+        mapped_values: dict[str, NewT] = {}
+        self.base_dir.mkdir(parents=True, exist_ok=True)
+
+        stage_path = self.base_dir / f"{stage_name}.jsonl"
+        if stage_path.is_file():
+            mapped_values = load(stage_name, self.base_dir, clazz).values
+
+        with jsonlines.open(stage_path, "w") as f:
+            for key, value in self.values.items():
+                if key not in mapped_values:
+                    mapped_value = await fn(key, value)
                     mapped_values[key] = mapped_value
                     f.write({"key": key, "value": mapped_value.model_dump()})
 
