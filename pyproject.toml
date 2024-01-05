@@ -6,7 +6,7 @@ authors = ["Misha Wagner <mishajw@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.9"
 pydantic = "^2.5.3"
 jsonlines = "^4.0.0"
 tqdm = "^4.66.1"
