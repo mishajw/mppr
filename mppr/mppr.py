@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Awaitable, Callable, Generic, TypeVar
 
 import jsonlines
+import tqdm
 from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
@@ -28,6 +29,7 @@ def init(
     """
 
     stage_path = base_dir / f"{stage_name}.jsonl"
+    base_dir.mkdir(parents=True, exist_ok=True)
     values: dict[str, T] = {}
 
     if stage_path.is_file():
@@ -90,12 +92,18 @@ class Mappable(Generic[T]):
         if stage_path.is_file():
             mapped_values = load(stage_name, self.base_dir, clazz).values
 
-        with jsonlines.open(stage_path, "w") as f:
-            for key, value in self.values.items():
-                if key not in mapped_values:
-                    mapped_value = fn(key, value)
-                    mapped_values[key] = mapped_value
-                    f.write({"key": key, "value": mapped_value.model_dump()})
+        with jsonlines.open(stage_path, "a") as f:
+            with tqdm.tqdm(
+                total=len(self.values),
+                initial=len(mapped_values),
+                desc=stage_name,
+            ) as pbar:
+                for key, value in self.values.items():
+                    if key not in mapped_values:
+                        mapped_value = fn(key, value)
+                        mapped_values[key] = mapped_value
+                        f.write({"key": key, "value": mapped_value.model_dump()})
+                        pbar.update(1)
 
         return Mappable(mapped_values, self.base_dir)
 
@@ -117,11 +125,17 @@ class Mappable(Generic[T]):
             mapped_values = load(stage_name, self.base_dir, clazz).values
 
         with jsonlines.open(stage_path, "w") as f:
-            for key, value in self.values.items():
-                if key not in mapped_values:
-                    mapped_value = await fn(key, value)
-                    mapped_values[key] = mapped_value
-                    f.write({"key": key, "value": mapped_value.model_dump()})
+            with tqdm.tqdm(
+                desc=stage_name,
+                total=len(self.values) - len(mapped_values),
+                initial=len(mapped_values),
+            ) as pbar:
+                for key, value in self.values.items():
+                    if key not in mapped_values:
+                        mapped_value = await fn(key, value)
+                        mapped_values[key] = mapped_value
+                        f.write({"key": key, "value": mapped_value.model_dump()})
+                        pbar.update(len(mapped_values))
 
         return Mappable(mapped_values, self.base_dir)
 

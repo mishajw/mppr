@@ -1,8 +1,9 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from pydantic import BaseModel
 import pytest
+from pydantic import BaseModel
+
 from mppr import Mappable
 
 
