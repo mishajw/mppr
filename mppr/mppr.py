@@ -9,21 +9,37 @@ T = TypeVar("T", bound=BaseModel)
 NewT = TypeVar("NewT", bound=BaseModel)
 
 
+def init(
+    stage_name: str, base_dir: Path, init_fn: Callable[[], dict[str, T]], clazz: type[T]
+) -> "Mappable[T]":
+    stage_path = base_dir / f"{stage_name}.jsonl"
+    values: dict[str, T] = {}
+
+    if stage_path.is_file():
+        return load(stage_name, base_dir, clazz)
+
+    values = init_fn()
+    with jsonlines.open(stage_path, "w") as f:
+        for key, value in values.items():
+            f.write({"key": key, "value": value.model_dump()})
+    return Mappable(values, base_dir)
+
+
+def load(stage_name: str, base_dir: Path, clazz: type[T]) -> "Mappable[T]":
+    stage_path = base_dir / f"{stage_name}.jsonl"
+    values: dict[str, T] = {}
+    assert stage_path.is_file(), f"Stage {stage_name} not found"
+    with jsonlines.open(stage_path, "r") as f:
+        for line in f:
+            assert line.keys() == {"key", "value"}
+            values[line["key"]] = clazz(**line["value"])
+    return Mappable(values, base_dir)
+
+
 @dataclass
 class Mappable(Generic[T]):
     values: dict[str, T]
     base_dir: Path
-
-    @classmethod
-    def load(cls, stage_name: str, base_dir: Path, clazz: type[T]) -> "Mappable[T]":
-        stage_path = base_dir / f"{stage_name}.jsonl"
-        values: dict[str, T] = {}
-        assert stage_path.is_file(), f"Stage {stage_name} not found"
-        with jsonlines.open(stage_path, "r") as f:
-            for line in f:
-                assert line.keys() == {"key", "value"}
-                values[line["key"]] = clazz(**line["value"])
-        return Mappable(values, base_dir)
 
     def map(
         self,
@@ -36,10 +52,7 @@ class Mappable(Generic[T]):
 
         stage_path = self.base_dir / f"{stage_name}.jsonl"
         if stage_path.is_file():
-            with jsonlines.open(stage_path, "r") as f:
-                for line in f:
-                    assert line.keys() == {"key", "value"}
-                    mapped_values[line["key"]] = clazz(**line["value"])
+            mapped_values = load(stage_name, self.base_dir, clazz).values
 
         with jsonlines.open(stage_path, "w") as f:
             for key, value in self.values.items():
