@@ -35,6 +35,6 @@ print(data.get())
 - Cached initializing of data (`mppr.init`).
 - Resumable mapping (`mppr.Mappable.map`).
 - Async mapping (`mppr.Mappable.amap`).
-- Support for Pydantic 2 base models.
-  - *N.B.: Although I plan to add support for other seralizable types, I have not done any of the infrastructure for this yet.*
+- Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).
+- Support for pickle outputs (`to="pickle"`).
 - `tqdm` for progress bars.

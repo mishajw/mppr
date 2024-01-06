@@ -4,7 +4,7 @@ from typing import Awaitable, Callable, Generic, TypeVar
 
 import tqdm
 
-from mppr.io.creator import create_io_method
+from mppr.io.creator import ToType, create_io_method
 
 T = TypeVar("T")
 NewT = TypeVar("NewT")
@@ -14,7 +14,7 @@ def init(
     stage_name: str,
     base_dir: Path,
     init_fn: Callable[[], dict[str, T]],
-    to: type[T],
+    to: ToType[T],
 ) -> "Mappable[T]":
     """
     Creates a mappable object from an init function.
@@ -41,7 +41,7 @@ def init(
     return Mappable(values, base_dir)
 
 
-def load(stage_name: str, base_dir: Path, to: type[T]) -> "Mappable[T]":
+def load(stage_name: str, base_dir: Path, to: ToType[T]) -> "Mappable[T]":
     """
     Loads a previously created stage.
 
@@ -66,7 +66,7 @@ class Mappable(Generic[T]):
         self,
         stage_name: str,
         fn: Callable[[str, T], NewT],
-        to: type[NewT],
+        to: ToType[NewT],
     ) -> "Mappable[NewT]":
         """
         Maps a function over the values in the stage.
@@ -107,7 +107,7 @@ class Mappable(Generic[T]):
         self,
         stage_name: str,
         fn: Callable[[str, T], Awaitable[NewT]],
-        to: type[NewT],
+        to: ToType[NewT],
     ) -> "Mappable[NewT]":
         """
         Asyncronous version of map.

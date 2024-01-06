@@ -85,3 +85,27 @@ def test_resume():
         )
 
     assert values.get() == [Row(value=2), Row(value=3), Row(value=4)]
+
+
+def test_pickle():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": dict(value=1),
+                "row2": dict(value=2),
+                "row3": dict(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values = values.map(
+            "increment",
+            lambda _, row: dict(value=row["value"] + 1),
+            to="pickle",
+        )
+        values = values.map(
+            "sqaure",
+            lambda _, row: dict(value=row["value"] ** 2),
+            to="pickle",
+        )
+
+    assert values.get() == [dict(value=4), dict(value=9), dict(value=16)]
