@@ -23,11 +23,15 @@ class PickleIoMethod(IoMethod[T]):
             return None
         values = {}
         with self.path.open("rb") as f:
-            result = pickle.load(f)
-            assert isinstance(result, dict)
-            assert result.keys() == {"key", "value"}
-            assert isinstance(result["key"], str)
-            values[result["key"]] = result["value"]
+            while True:
+                try:
+                    result = pickle.load(f)
+                except EOFError:
+                    break
+                assert isinstance(result, dict)
+                assert result.keys() == {"key", "value"}
+                assert isinstance(result["key"], str)
+                values[result["key"]] = result["value"]
         return values
 
     def create_writer(self) -> "Writer[T]":

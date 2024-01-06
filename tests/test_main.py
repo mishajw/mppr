@@ -1,5 +1,6 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import Any
 
 import pytest
 from pydantic import BaseModel
@@ -75,12 +76,9 @@ def test_resume():
             to=Row,
         )
 
-        def throw_lambda(key: str, row: Row) -> Row:
-            raise Exception("This should not be called")
-
         values = values.map(
             "increment",
-            throw_lambda,
+            _throw_lambda,
             to=Row,
         )
 
@@ -109,3 +107,32 @@ def test_pickle():
         )
 
     assert values.get() == [dict(value=4), dict(value=9), dict(value=16)]
+
+
+def test_pickle_resume():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": dict(value=1),
+                "row2": dict(value=2),
+                "row3": dict(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values = values.map(
+            "increment",
+            lambda _, row: dict(value=row["value"] + 1),
+            to="pickle",
+        )
+
+        values = values.map(
+            "increment",
+            _throw_lambda,
+            to="pickle",
+        )
+
+    assert values.get() == [dict(value=2), dict(value=3), dict(value=4)]
+
+
+def _throw_lambda(key: str, row: Any) -> Row:
+    raise Exception("This should not be called")
