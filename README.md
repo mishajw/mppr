@@ -11,13 +11,13 @@ data = mppr.init(
     "load_dataset",
     base_dir=Path("./mppr-cache"),
     init_fn=load_prompts_from_huggingface,
-    clazz=Prompt
+    to=Prompt
 )
 
 data = data.map(
     "call_openai",
     fn=prompt_gpt4_turbo,
-    clazz=Completion,
+    to=Completion,
 )
 
 print(data.get())
