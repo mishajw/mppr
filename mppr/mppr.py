@@ -141,3 +141,9 @@ class Mappable(Generic[T]):
         Gets the values in the map.
         """
         return list(self.values.values())
+
+    def limit(self, n: int) -> "Mappable[T]":
+        """
+        Limits the number of values in the map.
+        """
+        return Mappable(dict(list(self.values.items())[:n]), self.base_dir)

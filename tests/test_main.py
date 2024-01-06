@@ -134,5 +134,20 @@ def test_pickle_resume():
     assert values.get() == [dict(value=2), dict(value=3), dict(value=4)]
 
 
+def test_limit():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": dict(value=1),
+                "row2": dict(value=2),
+                "row3": dict(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values = values.limit(2)
+
+    assert values.get() == [dict(value=1), dict(value=2)]
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")
