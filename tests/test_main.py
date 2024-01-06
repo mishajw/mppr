@@ -24,12 +24,12 @@ def test_simple():
         values = values.map(
             "increment",
             lambda _, row: Row(value=row.value + 1),
-            clazz=Row,
+            to=Row,
         )
         values = values.map(
             "sqaure",
             lambda _, row: Row(value=row.value**2),
-            clazz=Row,
+            to=Row,
         )
 
     assert values.get() == [Row(value=4), Row(value=9), Row(value=16)]
@@ -53,7 +53,7 @@ async def test_async():
         values = await values.amap(
             "increment",
             fn=increment,
-            clazz=Row,
+            to=Row,
         )
 
     assert values.get() == [Row(value=2), Row(value=3), Row(value=4)]
@@ -72,7 +72,7 @@ def test_resume():
         values = values.map(
             "increment",
             lambda _, row: Row(value=row.value + 1),
-            clazz=Row,
+            to=Row,
         )
 
         def throw_lambda(key: str, row: Row) -> Row:
@@ -81,7 +81,7 @@ def test_resume():
         values = values.map(
             "increment",
             throw_lambda,
-            clazz=Row,
+            to=Row,
         )
 
     assert values.get() == [Row(value=2), Row(value=3), Row(value=4)]
