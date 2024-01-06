@@ -41,7 +41,7 @@ class PickleIoMethod(IoMethod[T]):
 class PickleWriter(Writer[T]):
     def __init__(self, path: Path):
         self.path = path
-        self.f = self.path.open("wb")
+        self.f = self.path.open("ab")
 
     def write(self, key: str, value: T):
         pickle.dump({"key": key, "value": value}, self.f)

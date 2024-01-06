@@ -39,7 +39,7 @@ class PydanticIoMethod(IoMethod[T]):
 class PydanticWriter(Writer[T]):
     def __init__(self, path: Path):
         self.path = path
-        self.f = jsonlines.open(self.path, "w")
+        self.f = jsonlines.open(self.path, "a")
 
     def write(self, key: str, value: T):
         self.f.write({"key": key, "value": value.model_dump()})
