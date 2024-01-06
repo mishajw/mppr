@@ -14,6 +14,10 @@ def create_io_method(
     stage_name: str,
     to: type[T],
 ) -> IoMethod[T]:
+    """
+    Creates an IO method for the given type.
+    """
+
     if issubclass(to, BaseModel):
         return PydanticIoMethod.create(base_dir, stage_name, to)
     else:
