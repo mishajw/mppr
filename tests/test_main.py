@@ -149,5 +149,30 @@ def test_limit():
     assert values.get() == [dict(value=1), dict(value=2)]
 
 
+def test_limit_change():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": Row(value=1),
+                "row2": Row(value=2),
+                "row3": Row(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values.map(
+            "increment",
+            lambda _, row: Row(value=row.value + 1),
+            to="pickle",
+        )
+
+        values_incremented = values.limit(2).map(
+            "increment",
+            lambda _, row: Row(value=row.value + 1),
+            to="pickle",
+        )
+
+    assert values_incremented.get() == [Row(value=2), Row(value=3)]
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")

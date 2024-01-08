@@ -4,6 +4,7 @@ from typing import Awaitable, Callable, Generic, TypeVar
 
 import tqdm
 
+from mppr.io.base import IoMethod
 from mppr.io.creator import ToType, create_io_method
 
 T = TypeVar("T")
@@ -82,11 +83,7 @@ class Mappable(Generic[T]):
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
         io_method = create_io_method(self.base_dir, stage_name, to)
-        mapped_values: dict[str, NewT] = {}
-
-        read_values = io_method.read()
-        if read_values is not None:
-            mapped_values.update(read_values)
+        mapped_values: dict[str, NewT] = self._load_for_map(io_method)
 
         with io_method.create_writer() as writer:
             with tqdm.tqdm(
@@ -110,16 +107,12 @@ class Mappable(Generic[T]):
         to: ToType[NewT],
     ) -> "Mappable[NewT]":
         """
-        Asyncronous version of map.
+        Asynchronous version of map.
         """
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
         io_method = create_io_method(self.base_dir, stage_name, to)
-        mapped_values: dict[str, NewT] = {}
-
-        read_values = io_method.read()
-        if read_values is not None:
-            mapped_values.update(read_values)
+        mapped_values: dict[str, NewT] = self._load_for_map(io_method)
 
         with io_method.create_writer() as writer:
             with tqdm.tqdm(
@@ -135,6 +128,15 @@ class Mappable(Generic[T]):
                         pbar.update(len(mapped_values))
 
         return Mappable(mapped_values, self.base_dir)
+
+    def _load_for_map(
+        self,
+        io_method: IoMethod[NewT],
+    ) -> dict[str, NewT]:
+        read_values = io_method.read()
+        if read_values is None:
+            return {}
+        return {key: value for key, value in read_values.items() if key in self.values}
 
     def get(self) -> list[T]:
         """
