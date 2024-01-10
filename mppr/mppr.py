@@ -9,6 +9,7 @@ from mppr.io.creator import ToType, create_io_method
 
 T = TypeVar("T")
 NewT = TypeVar("NewT")
+JoinT = TypeVar("JoinT")
 
 
 def init(
@@ -137,6 +138,20 @@ class Mappable(Generic[T]):
         if read_values is None:
             return {}
         return {key: value for key, value in read_values.items() if key in self.values}
+
+    def join(
+        self,
+        other: "Mappable[JoinT]",
+        fn: Callable[[str, T, JoinT], NewT],
+    ) -> "Mappable[NewT]":
+        return Mappable(
+            {
+                key: fn(key, self.values[key], other.values[key])
+                for key in self.values.keys()
+                if key in other.values
+            },
+            self.base_dir,
+        )
 
     def get(self) -> list[T]:
         """

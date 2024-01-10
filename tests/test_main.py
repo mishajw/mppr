@@ -174,5 +174,26 @@ def test_limit_change():
     assert values_incremented.get() == [Row(value=2), Row(value=3)]
 
 
+def test_join():
+    with TemporaryDirectory() as tmp_dir:
+        v1 = Mappable(
+            {
+                "row1": Row(value=1),
+                "row2": Row(value=2),
+                "row3": Row(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        v2 = v1.map(
+            "increment",
+            lambda _, row: Row(value=row.value + 1),
+            to=Row,
+        )
+
+        v3 = v1.join(v2, lambda _, r1, r2: Row(value=r1.value + r2.value))
+
+    assert v3.get() == [Row(value=3), Row(value=5), Row(value=7)]
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")
