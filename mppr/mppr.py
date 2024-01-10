@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Awaitable, Callable, Generic, TypeVar
+from typing import Any, Awaitable, Callable, Generic, TypeVar
 
+import pandas as pd
 import tqdm
 
 from mppr.io.base import IoMethod
@@ -144,6 +145,11 @@ class Mappable(Generic[T]):
         other: "Mappable[JoinT]",
         fn: Callable[[str, T, JoinT], NewT],
     ) -> "Mappable[NewT]":
+        """
+        Joins two mappable objects together.
+
+        N.B.: This operation is *not* cached.
+        """
         return Mappable(
             {
                 key: fn(key, self.values[key], other.values[key])
@@ -164,3 +170,15 @@ class Mappable(Generic[T]):
         Limits the number of values in the map.
         """
         return Mappable(dict(list(self.values.items())[:n]), self.base_dir)
+
+    def to_dataframe(
+        self,
+        fn: Callable[[T], dict[str, Any]],
+    ) -> pd.DataFrame:
+        """
+        Creates a dataframe out of the mappable.
+        """
+        return pd.DataFrame(
+            [fn(value) for value in self.values.values()],
+            index=list(self.values.keys()),
+        )

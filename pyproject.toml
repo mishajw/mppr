@@ -10,6 +10,7 @@ python = "^3.10"
 pydantic = "^2.5.3"
 jsonlines = "^4.0.0"
 tqdm = "^4.66.1"
+pandas = "^2.1.4"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.12.1"

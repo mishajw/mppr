@@ -36,6 +36,7 @@ print(data.get())
 - Resumable mapping (`mppr.Mappable.map`).
 - Async mapping (`mppr.Mappable.amap`).
 - Joining (`mppr.Mappable.join`).
+- Converting to Pandas DataFrames (`mppr.Mappable.to_dataframe`).
 - Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).
 - Support for pickle outputs (`to="pickle"`).
 - `tqdm` for progress bars.
