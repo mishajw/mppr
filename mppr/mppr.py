@@ -159,6 +159,24 @@ class Mappable(Generic[T]):
             self.base_dir,
         )
 
+    def flat_map(
+        self,
+        fn: Callable[[str, T], dict[str, NewT]],
+    ) -> "Mappable[NewT]":
+        """
+        Maps each row into multiple rows.
+
+        N.B.: This operation is *not* cached.
+        """
+        return Mappable(
+            {
+                new_key: new_value
+                for key, value in self.values.items()
+                for new_key, new_value in fn(key, value).items()
+            },
+            self.base_dir,
+        )
+
     def get(self) -> list[T]:
         """
         Gets the values in the map.
