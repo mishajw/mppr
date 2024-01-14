@@ -180,6 +180,20 @@ class Mappable(Generic[T]):
             self.base_dir,
         )
 
+    def filter(
+        self,
+        fn: Callable[[str, T], bool],
+    ) -> "Mappable[T]":
+        """
+        Filters the values in the stage.
+
+        N.B.: This operation is *not* cached.
+        """
+        return Mappable(
+            {key: value for key, value in self.values.items() if fn(key, value)},
+            self.base_dir,
+        )
+
     def upload(self, path: str | Path, to: ToType[T]) -> None:
         """
         Uploads the values in the map to a file or S3.

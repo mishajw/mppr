@@ -259,5 +259,22 @@ def test_upload():
         )
 
 
+def test_filter():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": Row(value=1),
+                "row2": Row(value=2),
+                "row3": Row(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values = values.filter(
+            lambda _, row: row.value % 2 == 1,
+        )
+
+    assert values.get() == [Row(value=1), Row(value=3)]
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")
