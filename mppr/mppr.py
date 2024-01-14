@@ -119,7 +119,7 @@ class Mappable(Generic[T]):
         with io_method.create_writer() as writer:
             with tqdm.tqdm(
                 desc=stage_name,
-                total=len(self.values) - len(mapped_values),
+                total=len(self.values),
                 initial=len(mapped_values),
             ) as pbar:
                 for key, value in self.values.items():
@@ -127,7 +127,7 @@ class Mappable(Generic[T]):
                         mapped_value = await fn(key, value)
                         mapped_values[key] = mapped_value
                         writer.write(key, mapped_value)
-                        pbar.update(len(mapped_values))
+                        pbar.update(1)
 
         return Mappable(mapped_values, self.base_dir)
 
