@@ -181,6 +181,13 @@ class Mappable(Generic[T]):
         )
 
     def upload(self, path: str | Path, to: ToType[T]) -> None:
+        """
+        Uploads the values in the map to a file or S3.
+
+        Args:
+            path: The path to upload to. Can be a local file path, or an S3 path (s3://bucket/path).
+            to: The class of the values in the stage. Used for deserialization.
+        """
         if isinstance(path, Path):
             self._upload_to_file(path, to)
             return
