@@ -48,3 +48,6 @@ class PickleWriter(Writer[T]):
 
     def close(self):
         self.f.close()
+
+    def get_file_path(self) -> Path:
+        return self.path

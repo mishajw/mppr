@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
@@ -32,6 +33,13 @@ class Writer(ABC, Generic[T]):
     def close(self):
         """
         Closes the writer.
+        """
+        ...
+
+    @abstractmethod
+    def get_file_path(self) -> Path:
+        """
+        Gets the file path that we're writing to.
         """
         ...
 

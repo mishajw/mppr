@@ -237,5 +237,27 @@ def test_flat_map():
     ]
 
 
+def test_upload():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": Row(value=1),
+                "row2": Row(value=2),
+                "row3": Row(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        values.upload(
+            f"{tmp_dir}/upload-test",
+            to=Row,
+        )
+        assert (Path(tmp_dir) / "upload-test.jsonl").is_file()
+        assert (Path(tmp_dir) / "upload-test.jsonl").read_text() == (
+            '{"key": "row1", "value": {"value": 1}}\n'
+            '{"key": "row2", "value": {"value": 2}}\n'
+            '{"key": "row3", "value": {"value": 3}}\n'
+        )
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")

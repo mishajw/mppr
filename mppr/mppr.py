@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any, Awaitable, Callable, Generic, TypeVar
+from urllib.parse import urlparse
 
+import boto3
 import pandas as pd
 import tqdm
 
@@ -176,6 +179,36 @@ class Mappable(Generic[T]):
             },
             self.base_dir,
         )
+
+    def upload(self, path: str | Path, to: ToType[T]) -> None:
+        if isinstance(path, Path):
+            self._upload_to_file(path, to)
+            return
+        parsed_url = urlparse(path)
+        if parsed_url.scheme in ["", "file"]:
+            self._upload_to_file(Path(parsed_url.path), to)
+        elif parsed_url.scheme == "s3":
+            s3_bucket = parsed_url.netloc
+            s3_path = parsed_url.path.lstrip("/")
+            self._upload_to_s3(s3_bucket, s3_path, to)
+
+    def _upload_to_file(self, path: Path, to: ToType[T]) -> None:
+        with create_io_method(path.parent, path.name, to).create_writer() as writer:
+            for key, value in self.values.items():
+                writer.write(key, value)
+
+    def _upload_to_s3(self, s3_bucket: str, s3_path: str, to: ToType[T]) -> None:
+        with TemporaryDirectory() as dir:
+            temp_dir = Path(dir)
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            with create_io_method(temp_dir, "to-upload", to).create_writer() as writer:
+                for key, value in self.values.items():
+                    writer.write(key, value)
+                temp_file = writer.get_file_path()
+            boto3.resource("s3").Bucket(s3_bucket).upload_file(
+                str(temp_file),
+                s3_path,
+            )
 
     def get(self) -> list[T]:
         """
