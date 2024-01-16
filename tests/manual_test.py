@@ -7,7 +7,7 @@ from pprint import pprint
 
 from pydantic import BaseModel
 
-from mppr import mppr
+from mppr.m_context import MContext
 
 N_ROWS = 100
 
@@ -22,9 +22,8 @@ def square(key: str, row: Row) -> Row:
 
 
 if __name__ == "__main__":
-    data = mppr.init(
+    data = MContext(Path("output")).init(
         stage_name="init",
-        base_dir=Path("output"),
         init_fn=lambda: {f"row{i}": Row(value=i) for i in range(N_ROWS)},
         to=Row,
     )

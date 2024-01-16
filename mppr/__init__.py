@@ -1,3 +1,7 @@
-from mppr.mppr import Mappable
+from mppr.m_context import MContext
+from mppr.m_dict import MDict
 
-__all__ = ["Mappable"]
+__all__ = [
+    "MDict",
+    "MContext",
+]

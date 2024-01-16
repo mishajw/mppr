@@ -5,22 +5,22 @@ A simple utility for mapping across lists of objects in Python with resumability
 Something that I've found myself reimplementing across several different projects, as well as being something that significantly speeds me up on experimental projects where I'm mapping over lots of data in expensive ways.
 
 ```python
-from mppr import mppr
+from mppr import MContext
 
-data = mppr.init(
+mcontext = MContext(Path("./mppr-cache"))
+mdict = mcontext.init(
     "load_dataset",
-    base_dir=Path("./mppr-cache"),
     init_fn=load_prompts_from_huggingface,
     to=Prompt
 )
 
-data = data.map(
+mdict = mdict.map(
     "call_openai",
     fn=prompt_gpt4_turbo,
     to=Completion,
 )
 
-print(data.get())
+print(mdict.get())
 # [
 #   Completion(prompt="what's the capital of france?", completion="paris"),
 #   Completion(prompt="what's the capital of spain?", completion="madrid"),
@@ -31,16 +31,16 @@ print(data.get())
 
 ## Features
 
-- Loading previously mapped data (`mppr.load`).
-- Cached initializing of data (`mppr.init`).
-- Resumable mapping (`mppr.Mappable.map`).
-- Async mapping (`mppr.Mappable.amap`).
-- Joining (`mppr.Mappable.join`).
-- Flat maps (`mppr.Mappable.flat_map`).
-- Filtering (`mppr.Mappable.filter`).
-- Sorting (`mppr.Mappable.sort`).
-- Converting to Pandas DataFrames (`mppr.Mappable.to_dataframe`).
-- Uploading data to S3 / specific file locations (`mppr.Mappable.upload`).
+- Loading previously mapped data (`MContext.load`).
+- Cached initializing of data (`MContext.init`).
+- Resumable mapping (`MDict.map`).
+- Async mapping (`MDict.amap`).
+- Joining (`MDict.join`).
+- Flat maps (`MDict.flat_map`).
+- Filtering (`MDict.filter`).
+- Sorting (`MDict.sort`).
+- Converting to Pandas DataFrames (`MDict.to_dataframe`).
+- Uploading data to S3 / specific file locations (`MDict.upload`).
 - Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).
 - Support for pickle outputs (`to="pickle"`).
 - `tqdm` for progress bars.
