@@ -232,6 +232,17 @@ class Mappable(Generic[T]):
                 s3_path,
             )
 
+    def sort(self, fn: Callable[[str, T], Any]) -> "Mappable[T]":
+        """
+        Sorts the values by a key function.
+
+        N.B.: This operation is *not* cached.
+        """
+        return Mappable(
+            dict(sorted(self.values.items(), key=lambda x: fn(x[0], x[1]))),
+            self.base_dir,
+        )
+
     def get(self) -> list[T]:
         """
         Gets the values in the map.

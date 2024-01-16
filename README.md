@@ -38,6 +38,7 @@ print(data.get())
 - Joining (`mppr.Mappable.join`).
 - Flat maps (`mppr.Mappable.flat_map`).
 - Filtering (`mppr.Mappable.filter`).
+- Sorting (`mppr.Mappable.sort`).
 - Converting to Pandas DataFrames (`mppr.Mappable.to_dataframe`).
 - Uploading data to S3 / specific file locations (`mppr.Mappable.upload`).
 - Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).

@@ -276,5 +276,20 @@ def test_filter():
     assert values.get() == [Row(value=1), Row(value=3)]
 
 
+def test_sort():
+    with TemporaryDirectory() as tmp_dir:
+        values = Mappable(
+            {
+                "row1": Row(value=2),
+                "row2": Row(value=1),
+                "row3": Row(value=3),
+            },
+            base_dir=Path(tmp_dir) / "output",
+        )
+        assert values.get() == [Row(value=2), Row(value=1), Row(value=3)]
+        values = values.sort(lambda _, row: row.value)
+        assert values.get() == [Row(value=1), Row(value=2), Row(value=3)]
+
+
 def _throw_lambda(key: str, row: Any) -> Row:
     raise Exception("This should not be called")
