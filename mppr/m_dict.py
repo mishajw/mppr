@@ -23,10 +23,14 @@ JoinT = TypeVar("JoinT")
 
 @dataclass
 class MDict(Generic[T]):
+    """
+    Wrapper around a dictionary that allows for resumable processing.
+    """
+
     values: dict[str, T]
     context: MContext
 
-    def map(
+    def map_resumable(
         self,
         stage_name: str,
         fn: Callable[[str, T], NewT],
@@ -106,8 +110,6 @@ class MDict(Generic[T]):
     ) -> "MDict[NewT]":
         """
         Joins two mappable objects together.
-
-        N.B.: This operation is *not* cached.
         """
         return MDict(
             {
@@ -124,8 +126,6 @@ class MDict(Generic[T]):
     ) -> "MDict[NewT]":
         """
         Maps each row into multiple rows.
-
-        N.B.: This operation is *not* cached.
         """
         return MDict(
             {
@@ -142,8 +142,6 @@ class MDict(Generic[T]):
     ) -> "MDict[T]":
         """
         Filters the values in the stage.
-
-        N.B.: This operation is *not* cached.
         """
         return MDict(
             {key: value for key, value in self.values.items() if fn(key, value)},
@@ -191,8 +189,6 @@ class MDict(Generic[T]):
     def sort(self, fn: Callable[[str, T], Any]) -> "MDict[T]":
         """
         Sorts the values by a key function.
-
-        N.B.: This operation is *not* cached.
         """
         return MDict(
             dict(sorted(self.values.items(), key=lambda x: fn(x[0], x[1]))),

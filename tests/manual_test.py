@@ -27,5 +27,5 @@ if __name__ == "__main__":
         init_fn=lambda: {f"row{i}": Row(value=i) for i in range(N_ROWS)},
         to=Row,
     )
-    data = data.map("square", square, to=Row)
+    data = data.map_resumable("square", square, to=Row)
     pprint(data.get())

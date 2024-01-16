@@ -14,7 +14,7 @@ mdict = mcontext.init(
     to=Prompt
 )
 
-mdict = mdict.map(
+mdict = mdict.map_resumable(
     "call_openai",
     fn=prompt_gpt4_turbo,
     to=Completion,
@@ -33,8 +33,8 @@ print(mdict.get())
 
 - Loading previously mapped data (`MContext.load`).
 - Cached initializing of data (`MContext.init`).
-- Resumable mapping (`MDict.map`).
-- Async mapping (`MDict.amap`).
+- Resumable mapping (`MDict.map_resumable`).
+- Async mapping (`MDict.amap_resumable`).
 - Joining (`MDict.join`).
 - Flat maps (`MDict.flat_map`).
 - Filtering (`MDict.filter`).
