@@ -194,7 +194,7 @@ class Mappable(Generic[T]):
             self.base_dir,
         )
 
-    def upload(self, path: str | Path, to: ToType[T]) -> None:
+    def upload(self, path: str | Path, to: ToType[T]) -> "Mappable[T]":
         """
         Uploads the values in the map to a file or S3.
 
@@ -204,7 +204,7 @@ class Mappable(Generic[T]):
         """
         if isinstance(path, Path):
             self._upload_to_file(path, to)
-            return
+            return self
         parsed_url = urlparse(path)
         if parsed_url.scheme in ["", "file"]:
             self._upload_to_file(Path(parsed_url.path), to)
@@ -212,6 +212,7 @@ class Mappable(Generic[T]):
             s3_bucket = parsed_url.netloc
             s3_path = parsed_url.path.lstrip("/")
             self._upload_to_s3(s3_bucket, s3_path, to)
+        return self
 
     def _upload_to_file(self, path: Path, to: ToType[T]) -> None:
         with create_io_method(path.parent, path.name, to).create_writer() as writer:
