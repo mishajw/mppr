@@ -1,7 +1,8 @@
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypeVar, override
+
+from typing_extensions import TypeVar, override
 
 from mppr.io.base import IoMethod, Writer
 

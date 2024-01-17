@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import TypeVar, override
 
 import jsonlines
 from attr import dataclass
 from pydantic import BaseModel
+from typing_extensions import TypeVar, override
 
 from mppr.io.base import IoMethod, Writer
 
