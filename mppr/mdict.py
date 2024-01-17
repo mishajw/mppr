@@ -100,11 +100,11 @@ class MDict(Generic[T]):
         io_method: IoMethod[NewT],
     ) -> dict[str, NewT]:
         read_values = {}
-        for key, value in tqdm(
-            io_method.read(), desc=f"{stage_name} load", total=len(self.values)
-        ):
-            if key in self.values:
-                read_values[key] = value
+        with tqdm(desc=f"{stage_name} load", total=len(self.values)) as pbar:
+            for key, value in io_method.read():
+                if key in self.values:
+                    read_values[key] = value
+                    pbar.update(1)
         return read_values
 
     def join(
