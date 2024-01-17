@@ -7,7 +7,7 @@ from pprint import pprint
 
 from pydantic import BaseModel
 
-from mppr.m_context import MContext
+from mppr.mcontext import MContext
 
 N_ROWS = 100
 

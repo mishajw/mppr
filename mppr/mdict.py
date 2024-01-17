@@ -14,7 +14,7 @@ from mppr.io.base import IoMethod
 from mppr.io.creator import ToType, create_io_method
 
 if TYPE_CHECKING:
-    from mppr.m_context import MContext
+    from mppr.mcontext import MContext
 
 T = TypeVar("T")
 NewT = TypeVar("NewT")

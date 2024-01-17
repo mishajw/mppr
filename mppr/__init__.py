@@ -1,5 +1,5 @@
-from mppr.m_context import MContext
-from mppr.m_dict import MDict
+from mppr.mcontext import MContext
+from mppr.mdict import MDict
 
 __all__ = [
     "MDict",

@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import boto3
 
 from mppr.io.creator import ToType, create_io_method
-from mppr.m_dict import MDict
+from mppr.mdict import MDict
 
 T = TypeVar("T")
 NewT = TypeVar("NewT")
