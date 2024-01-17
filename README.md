@@ -41,6 +41,7 @@ print(mdict.get())
 - Sorting (`MDict.sort`).
 - Converting to Pandas DataFrames (`MDict.to_dataframe`).
 - Uploading data to S3 / specific file locations (`MDict.upload`).
+- Downloading data from S3 / specific file locations (`MContext.download`).
 - Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).
 - Support for pickle outputs (`to="pickle"`).
 - `tqdm` for progress bars.
