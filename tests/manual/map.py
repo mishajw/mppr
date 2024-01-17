@@ -22,10 +22,10 @@ def square(key: str, row: Row) -> Row:
 
 
 if __name__ == "__main__":
-    data = MContext(Path("output")).init(
+    data = MContext(Path("output")).create_cached(
         stage_name="init",
         init_fn=lambda: {f"row{i}": Row(value=i) for i in range(N_ROWS)},
         to=Row,
     )
-    data = data.map_resumable("square", square, to=Row)
+    data = data.map_cached("square", square, to=Row)
     pprint(data.get())

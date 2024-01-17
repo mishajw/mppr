@@ -32,16 +32,16 @@ print(mdict.get())
 ## Features
 
 - Loading previously mapped data (`MContext.load`).
-- Cached initializing of data (`MContext.init`).
-- Resumable mapping (`MDict.map_resumable`).
-- Async mapping (`MDict.amap_resumable`).
+- Cached initializing of data (`MContext.create_cached`).
+- Resumable mapping (`MDict.map_cached`).
+- Async mapping (`MDict.amap_cached`).
 - Joining (`MDict.join`).
 - Flat maps (`MDict.flat_map`).
 - Filtering (`MDict.filter`).
 - Sorting (`MDict.sort`).
 - Converting to Pandas DataFrames (`MDict.to_dataframe`).
 - Uploading data to S3 / specific file locations (`MDict.upload`).
-- Downloading data from S3 / specific file locations (`MContext.download`).
+- Downloading data from S3 / specific file locations (`MContext.download_cached`).
 - Support for Pydantic 2 base models (`to=YourPydanticBaseModel`).
 - Support for pickle outputs (`to="pickle"`).
 - `tqdm` for progress bars.

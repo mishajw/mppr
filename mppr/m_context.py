@@ -20,7 +20,7 @@ class MContext:
     def __post_init__(self):
         self.dir.mkdir(parents=True, exist_ok=True)
 
-    def init(
+    def create_cached(
         self,
         stage_name: str,
         init_fn: Callable[[], dict[str, T]],
@@ -49,6 +49,12 @@ class MContext:
                 writer.write(key, value)
         return MDict(values, context=self)
 
+    def create(self, values: dict[str, T]) -> MDict[T]:
+        """
+        Creates a mappable object from a dictionary.
+        """
+        return MDict(values, context=self)
+
     def load(self, stage_name: str, to: ToType[T]) -> MDict[T]:
         """
         Loads a previously created stage.
@@ -64,13 +70,9 @@ class MContext:
         assert values is not None, f"Stage {stage_name} does not exist"
         return MDict(values, context=self)
 
-    def create(self, values: dict[str, T]) -> MDict[T]:
-        """
-        Creates a mappable object from a dictionary.
-        """
-        return MDict(values, context=self)
-
-    def download(self, stage_name: str, *, path: str | Path, to: ToType[T]) -> MDict[T]:
+    def download_cached(
+        self, stage_name: str, *, path: str | Path, to: ToType[T]
+    ) -> MDict[T]:
         """
         Downloads a stage from a file or S3.
 

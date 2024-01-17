@@ -31,12 +31,12 @@ def test_simple(mcontext: MContext):
             "row3": Row(value=3),
         },
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         lambda _, row: Row(value=row.value + 1),
         to=Row,
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "sqaure",
         lambda _, row: Row(value=row.value**2),
         to=Row,
@@ -58,7 +58,7 @@ async def test_async(mcontext: MContext):
     async def increment(key: str, row: Row) -> Row:
         return Row(value=row.value + 1)
 
-    values = await values.amap_resumable(
+    values = await values.amap_cached(
         "increment",
         fn=increment,
         to=Row,
@@ -75,13 +75,13 @@ def test_resume(mcontext: MContext):
             "row3": Row(value=3),
         },
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         lambda _, row: Row(value=row.value + 1),
         to=Row,
     )
 
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         _throw_lambda,
         to=Row,
@@ -98,12 +98,12 @@ def test_pickle(mcontext: MContext):
             "row3": dict(value=3),
         },
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         lambda _, row: dict(value=row["value"] + 1),
         to="pickle",
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "sqaure",
         lambda _, row: dict(value=row["value"] ** 2),
         to="pickle",
@@ -120,13 +120,13 @@ def test_pickle_resume(mcontext: MContext):
             "row3": dict(value=3),
         },
     )
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         lambda _, row: dict(value=row["value"] + 1),
         to="pickle",
     )
 
-    values = values.map_resumable(
+    values = values.map_cached(
         "increment",
         _throw_lambda,
         to="pickle",
@@ -156,13 +156,13 @@ def test_limit_change(mcontext: MContext):
             "row3": Row(value=3),
         },
     )
-    values.map_resumable(
+    values.map_cached(
         "increment",
         lambda _, row: Row(value=row.value + 1),
         to="pickle",
     )
 
-    values_incremented = values.limit(2).map_resumable(
+    values_incremented = values.limit(2).map_cached(
         "increment",
         lambda _, row: Row(value=row.value + 1),
         to="pickle",
@@ -179,7 +179,7 @@ def test_join(mcontext: MContext):
             "row3": Row(value=3),
         },
     )
-    v2 = v1.map_resumable(
+    v2 = v1.map_cached(
         "increment",
         lambda _, row: Row(value=row.value + 1),
         to=Row,

@@ -20,7 +20,7 @@ def main():
         to="pickle",
     )
 
-    downloaded = mcontext.download(
+    downloaded = mcontext.download_cached(
         "download_test",
         path="s3://repeng/mppr-tests/upload-test",
         to="pickle",

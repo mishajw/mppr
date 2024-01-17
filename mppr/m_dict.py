@@ -30,7 +30,7 @@ class MDict(Generic[T]):
     values: dict[str, T]
     context: MContext
 
-    def map_resumable(
+    def map_cached(
         self,
         stage_name: str,
         fn: Callable[[str, T], NewT],
@@ -66,7 +66,7 @@ class MDict(Generic[T]):
 
         return MDict(mapped_values, self.context)
 
-    async def amap(
+    async def amap_cached(
         self,
         stage_name: str,
         fn: Callable[[str, T], Awaitable[NewT]],
