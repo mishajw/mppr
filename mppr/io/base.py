@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, Iterable, TypeVar
 
 T = TypeVar("T")
 
 
 class IoMethod(ABC, Generic[T]):
     @abstractmethod
-    def read(self) -> dict[str, T] | None:
+    def read(self) -> Iterable[tuple[str, T]]:
         """
         Reads the stage.
         """

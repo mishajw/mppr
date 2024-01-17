@@ -4,6 +4,7 @@ from typing import Callable, TypeVar
 from urllib.parse import urlparse
 
 import boto3
+from tqdm import tqdm
 
 from mppr.io.creator import ToType, create_io_method
 from mppr.mdict import MDict
@@ -39,13 +40,15 @@ class MContext:
         """
 
         io_method = create_io_method(self.dir, stage_name, to)
-        read_values = io_method.read()
-        if read_values is not None:
+        read_values = {}
+        for key, value in tqdm(io_method.read(), desc=f"{stage_name} load"):
+            read_values[key] = value
+        if len(read_values) > 0:
             return MDict(values=read_values, context=self)
 
         values = init_fn()
         with io_method.create_writer() as writer:
-            for key, value in values.items():
+            for key, value in tqdm(values.items(), desc=f"{stage_name} write"):
                 writer.write(key, value)
         return MDict(values, context=self)
 
@@ -66,8 +69,10 @@ class MContext:
         """
 
         io_method = create_io_method(self.dir, stage_name, to)
-        values = io_method.read()
-        assert values is not None, f"Stage {stage_name} does not exist"
+        values = {}
+        for key, value in tqdm(io_method.read(), desc=f"{stage_name} load"):
+            values[key] = value
+        assert len(values) > 0, f"Stage {stage_name} does not exist"
         return MDict(values, context=self)
 
     def download_cached(
@@ -81,11 +86,15 @@ class MContext:
             to: The class of the values in the stage. Used for deserialization.
         """
         io_method = create_io_method(self.dir, stage_name, to)
-        values = io_method.read()
-        if values is not None:
+        values = {}
+        for key, value in tqdm(io_method.read(), desc=f"{stage_name} load"):
+            values[key] = value
+        if len(values) > 0:
             return MDict(values, context=self)
         self._download(from_path=path, to_path=io_method.get_path())
-        values = io_method.read()
+        values = {}
+        for key, value in tqdm(io_method.read(), desc=f"{stage_name} load"):
+            values[key] = value
         assert (
             values is not None
         ), f"Unexpected state: Couldn't find values after downloading from {path}"

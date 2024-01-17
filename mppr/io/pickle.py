@@ -1,6 +1,7 @@
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 from typing_extensions import TypeVar, override
 
@@ -20,9 +21,9 @@ class PickleIoMethod(IoMethod[T]):
         )
 
     @override
-    def read(self) -> dict[str, T] | None:
+    def read(self) -> Iterable[tuple[str, T]]:
         if not self.path.is_file():
-            return None
+            return
         values = {}
         with self.path.open("rb") as f:
             while True:
@@ -33,7 +34,7 @@ class PickleIoMethod(IoMethod[T]):
                 assert isinstance(result, dict)
                 assert result.keys() == {"key", "value"}
                 assert isinstance(result["key"], str)
-                values[result["key"]] = result["value"]
+                yield result["key"], result["value"]
         return values
 
     @override

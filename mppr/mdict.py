@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 
 import boto3
 import pandas as pd
-import tqdm
+from tqdm import tqdm
 
 from mppr.io.base import IoMethod
 from mppr.io.creator import ToType, create_io_method
@@ -49,10 +49,10 @@ class MDict(Generic[T]):
         """
 
         io_method = create_io_method(self.context.dir, stage_name, to)
-        mapped_values: dict[str, NewT] = self._load_for_map(io_method)
+        mapped_values: dict[str, NewT] = self._load_for_map(stage_name, io_method)
 
         with io_method.create_writer() as writer:
-            with tqdm.tqdm(
+            with tqdm(
                 total=len(self.values),
                 initial=len(mapped_values),
                 desc=stage_name,
@@ -77,10 +77,10 @@ class MDict(Generic[T]):
         """
 
         io_method = create_io_method(self.context.dir, stage_name, to)
-        mapped_values: dict[str, NewT] = self._load_for_map(io_method)
+        mapped_values: dict[str, NewT] = self._load_for_map(stage_name, io_method)
 
         with io_method.create_writer() as writer:
-            with tqdm.tqdm(
+            with tqdm(
                 desc=stage_name,
                 total=len(self.values),
                 initial=len(mapped_values),
@@ -96,12 +96,14 @@ class MDict(Generic[T]):
 
     def _load_for_map(
         self,
+        stage_name: str,
         io_method: IoMethod[NewT],
     ) -> dict[str, NewT]:
-        read_values = io_method.read()
-        if read_values is None:
-            return {}
-        return {key: value for key, value in read_values.items() if key in self.values}
+        read_values = {}
+        for key, value in tqdm(io_method.read(), desc=f"{stage_name} load"):
+            if key in self.values:
+                read_values[key] = value
+        return read_values
 
     def join(
         self,

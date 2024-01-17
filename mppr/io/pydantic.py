@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Iterable
 
 import jsonlines
 from attr import dataclass
@@ -23,15 +24,13 @@ class PydanticIoMethod(IoMethod[T]):
         )
 
     @override
-    def read(self) -> dict[str, T] | None:
+    def read(self) -> Iterable[tuple[str, T]]:
         if not self.path.is_file():
-            return None
-        values = {}
+            return
         with jsonlines.open(self.path, "r") as f:
             for line in f:
                 assert line.keys() == {"key", "value"}
-                values[line["key"]] = self.to(**line["value"])
-        return values
+                yield line["key"], self.to(**line["value"])
 
     @override
     def create_writer(self) -> "Writer[T]":
