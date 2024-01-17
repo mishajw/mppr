@@ -20,6 +20,13 @@ class IoMethod(ABC, Generic[T]):
         """
         ...
 
+    @abstractmethod
+    def get_path(self) -> Path:
+        """
+        Gets the path to the stage.
+        """
+        ...
+
 
 class Writer(ABC, Generic[T]):
     @abstractmethod
@@ -33,13 +40,6 @@ class Writer(ABC, Generic[T]):
     def close(self):
         """
         Closes the writer.
-        """
-        ...
-
-    @abstractmethod
-    def get_file_path(self) -> Path:
-        """
-        Gets the file path that we're writing to.
         """
         ...
 

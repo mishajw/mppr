@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import TypeVar
+from typing import TypeVar, override
 
 import jsonlines
 from attr import dataclass
@@ -22,6 +22,7 @@ class PydanticIoMethod(IoMethod[T]):
             to=to,
         )
 
+    @override
     def read(self) -> dict[str, T] | None:
         if not self.path.is_file():
             return None
@@ -32,8 +33,13 @@ class PydanticIoMethod(IoMethod[T]):
                 values[line["key"]] = self.to(**line["value"])
         return values
 
+    @override
     def create_writer(self) -> "Writer[T]":
         return PydanticWriter(self.path)
+
+    @override
+    def get_path(self) -> Path:
+        return self.path
 
 
 class PydanticWriter(Writer[T]):
@@ -41,11 +47,10 @@ class PydanticWriter(Writer[T]):
         self.path = path
         self.f = jsonlines.open(self.path, "a")
 
+    @override
     def write(self, key: str, value: T):
         self.f.write({"key": key, "value": value.model_dump()})
 
+    @override
     def close(self):
         self.f.close()
-
-    def get_file_path(self) -> Path:
-        return self.path

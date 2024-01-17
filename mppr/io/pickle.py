@@ -1,7 +1,7 @@
 import pickle
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TypeVar
+from typing import TypeVar, override
 
 from mppr.io.base import IoMethod, Writer
 
@@ -18,6 +18,7 @@ class PickleIoMethod(IoMethod[T]):
             path=base_path / f"{stage_name}.pickle",
         )
 
+    @override
     def read(self) -> dict[str, T] | None:
         if not self.path.is_file():
             return None
@@ -34,8 +35,13 @@ class PickleIoMethod(IoMethod[T]):
                 values[result["key"]] = result["value"]
         return values
 
+    @override
     def create_writer(self) -> "Writer[T]":
         return PickleWriter(self.path)
+
+    @override
+    def get_path(self) -> Path:
+        return self.path
 
 
 class PickleWriter(Writer[T]):
@@ -43,11 +49,10 @@ class PickleWriter(Writer[T]):
         self.path = path
         self.f = self.path.open("ab")
 
+    @override
     def write(self, key: str, value: T):
         pickle.dump({"key": key, "value": value}, self.f)
 
+    @override
     def close(self):
         self.f.close()
-
-    def get_file_path(self) -> Path:
-        return self.path

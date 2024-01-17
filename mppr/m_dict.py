@@ -177,12 +177,12 @@ class MDict(Generic[T]):
         with TemporaryDirectory() as dir:
             temp_dir = Path(dir)
             temp_dir.mkdir(parents=True, exist_ok=True)
-            with create_io_method(temp_dir, "to-upload", to).create_writer() as writer:
+            io_method = create_io_method(temp_dir, "to-upload", to)
+            with io_method.create_writer() as writer:
                 for key, value in self.values.items():
                     writer.write(key, value)
-                temp_file = writer.get_file_path()
             boto3.resource("s3").Bucket(s3_bucket).upload_file(
-                str(temp_file),
+                str(io_method.get_path()),
                 s3_path,
             )
 
