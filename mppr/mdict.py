@@ -174,7 +174,7 @@ class MDict(Generic[T]):
 
     def _upload_to_file(self, path: Path, to: ToType[T]) -> None:
         with create_io_method(path.parent, path.name, to).create_writer() as writer:
-            for key, value in self.values.items():
+            for key, value in tqdm(self.values.items(), desc="upload write"):
                 writer.write(key, value)
 
     def _upload_to_s3(self, s3_bucket: str, s3_path: str, to: ToType[T]) -> None:
@@ -183,7 +183,7 @@ class MDict(Generic[T]):
             temp_dir.mkdir(parents=True, exist_ok=True)
             io_method = create_io_method(temp_dir, "to-upload", to)
             with io_method.create_writer() as writer:
-                for key, value in self.values.items():
+                for key, value in tqdm(self.values.items(), desc="upload write"):
                     writer.write(key, value)
             boto3.resource("s3").Bucket(s3_bucket).upload_file(
                 str(io_method.get_path()),
