@@ -66,6 +66,21 @@ class MDict(Generic[T]):
 
         return MDict(mapped_values, self.context)
 
+    def map(
+        self,
+        fn: Callable[[str, T], NewT],
+    ) -> "MDict[NewT]":
+        """
+        Maps a function over the values in the stage.
+
+        Args:
+            fn: The function to call on each value.
+        """
+        return MDict(
+            {key: fn(key, value) for key, value in self.values.items()},
+            self.context,
+        )
+
     async def amap_cached(
         self,
         stage_name: str,
@@ -172,6 +187,31 @@ class MDict(Generic[T]):
             self._upload_to_s3(s3_bucket, s3_path, to)
         return self
 
+    def rekey(self, fn: Callable[[str, T], str]) -> "MDict[T]":
+        """
+        Rekeys the values in the map.
+        """
+        return MDict(
+            {fn(key, value): value for key, value in self.values.items()},
+            self.context,
+        )
+
+    def rekey_and_group(
+        self,
+        fn: Callable[[str, T], str],
+    ) -> "MDict[list[T]]":
+        """
+        Rekeys the values in the map, and groups them by the new key.
+        """
+        new_dict: dict[str, list[T]] = {}
+        for key, value in self.values.items():
+            new_key = fn(key, value)
+            if new_key in new_dict:
+                new_dict[new_key].append(value)
+            else:
+                new_dict[new_key] = [value]
+        return MDict(new_dict, self.context)
+
     def _upload_to_file(self, path: Path, to: ToType[T]) -> None:
         with create_io_method(path.parent, path.name, to).create_writer() as writer:
             for key, value in tqdm(self.values.items(), desc="upload write"):
@@ -204,6 +244,12 @@ class MDict(Generic[T]):
         Gets the values in the map.
         """
         return list(self.values.values())
+
+    def get_keys(self) -> list[str]:
+        """
+        Gets the keys in the map.
+        """
+        return list(self.values.keys())
 
     def limit(self, n: int) -> "MDict[T]":
         """

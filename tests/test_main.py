@@ -67,6 +67,21 @@ async def test_async(mcontext: MContext):
     assert values.get() == [Row(value=2), Row(value=3), Row(value=4)]
 
 
+def test_map(mcontext: MContext):
+    values = mcontext.create(
+        {
+            "row1": Row(value=1),
+            "row2": Row(value=2),
+            "row3": Row(value=3),
+        },
+    )
+    values = values.map(
+        lambda key, row: (key, row.value + 1),
+    )
+
+    assert values.get() == [("row1", 2), ("row2", 3), ("row3", 4)]
+
+
 def test_resume(mcontext: MContext):
     values = mcontext.create(
         {
@@ -274,6 +289,33 @@ def test_sort(mcontext: MContext):
     assert values.get() == [Row(value=2), Row(value=1), Row(value=3)]
     values = values.sort(lambda _, row: row.value)
     assert values.get() == [Row(value=1), Row(value=2), Row(value=3)]
+
+
+def test_rekey(mcontext: MContext):
+    values = mcontext.create(
+        {
+            "row1": Row(value=1),
+            "row2": Row(value=2),
+            "row3": Row(value=3),
+        },
+    )
+    values = values.rekey(lambda key, _: f"{key}_new")
+
+    assert values.get_keys() == ["row1_new", "row2_new", "row3_new"]
+
+
+def test_rekey_and_group(mcontext: MContext):
+    values = mcontext.create(
+        {
+            "row1": Row(value=1),
+            "row2": Row(value=2),
+            "row3": Row(value=3),
+            "row4": Row(value=1),
+        },
+    )
+    values = values.rekey_and_group(lambda _, __: "new")
+
+    assert values.get() == [[Row(value=1), Row(value=2), Row(value=3), Row(value=1)]]
 
 
 def _throw_lambda(key: str, row: Any) -> Row:
